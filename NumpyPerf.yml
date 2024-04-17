@@ -1,0 +1,6 @@
+name: NumpyPerf
+channels:
+- conda-forge
+dependencies:
+- ipython
+- numpy
