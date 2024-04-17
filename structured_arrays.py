@@ -3,7 +3,7 @@ import timeit
 setup_code = """
 import numpy as np
 
-SZ = (4096, 4096)
+SZ = (3000, 3000)
 array = np.random.uniform(0, 1, SZ).astype(np.float32)
 dt = np.dtype([
     ('index', int, (1,)),
@@ -40,12 +40,18 @@ tup_assignment = """
 zero[0] = (0, 1.0, array)
 """
 
+struct_array_assignment = """
+zero[0] = struct
+"""
+
 print(assignment, timeit.repeat(setup=setup_code, stmt=assignment, repeat=3, number=1000))
 print(regular_copy, timeit.repeat(setup=setup_code, stmt=regular_copy, repeat=3, number=1000))
 print(unstruct_array, timeit.repeat(setup=setup_code, stmt=unstruct_array, repeat=3, number=1000))
 print(struct_array, timeit.repeat(setup=setup_code, stmt=struct_array, repeat=3, number=1000))
 print(field_assignment, timeit.repeat(setup=setup_code, stmt=field_assignment, repeat=3, number=1000))
 print(tup_assignment, timeit.repeat(setup=setup_code, stmt=field_assignment, repeat=3, number=1000))
+print(struct_array_assignment, timeit.repeat(setup=setup_code, stmt=struct_array_assignment, repeat=3, number=1000))
+
 
 exec(setup_code)
 
