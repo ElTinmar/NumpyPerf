@@ -3,7 +3,7 @@ import timeit
 setup_code = """
 import numpy as np
 
-SZ = (3000, 3000)
+SZ = (1800, 1800)
 array = np.random.uniform(0, 1, SZ).astype(np.float32)
 dt = np.dtype([
     ('index', int, (1,)),
@@ -44,6 +44,7 @@ struct_array_assignment = """
 zero[0] = struct
 """
 
+# number=1000 means results in ms 
 print(assignment, timeit.repeat(setup=setup_code, stmt=assignment, repeat=3, number=1000))
 print(regular_copy, timeit.repeat(setup=setup_code, stmt=regular_copy, repeat=3, number=1000))
 print(unstruct_array, timeit.repeat(setup=setup_code, stmt=unstruct_array, repeat=3, number=1000))
