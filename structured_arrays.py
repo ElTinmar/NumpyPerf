@@ -30,6 +30,14 @@ struct_array = """
 structured_image = np.array((0, 1.00, array), dtype=dt)
 """
 
+struct_asarray = """
+structured_image = np.asarray((0, 1.00, array), dtype=dt)
+"""
+
+struct_asanyarray = """
+structured_image = np.asanyarray((0, 1.00, array), dtype=dt)
+"""
+
 field_assignment = """
 zero['index'] = 0
 zero['timestamp'] = 1.0
@@ -49,8 +57,10 @@ print(assignment, timeit.repeat(setup=setup_code, stmt=assignment, repeat=3, num
 print(regular_copy, timeit.repeat(setup=setup_code, stmt=regular_copy, repeat=3, number=1000))
 print(unstruct_array, timeit.repeat(setup=setup_code, stmt=unstruct_array, repeat=3, number=1000))
 print(struct_array, timeit.repeat(setup=setup_code, stmt=struct_array, repeat=3, number=1000))
+print(struct_asarray, timeit.repeat(setup=setup_code, stmt=struct_asarray, repeat=3, number=1000))
+print(struct_asanyarray, timeit.repeat(setup=setup_code, stmt=struct_asanyarray, repeat=3, number=1000))
 print(field_assignment, timeit.repeat(setup=setup_code, stmt=field_assignment, repeat=3, number=1000))
-print(tup_assignment, timeit.repeat(setup=setup_code, stmt=field_assignment, repeat=3, number=1000))
+print(tup_assignment, timeit.repeat(setup=setup_code, stmt=tup_assignment, repeat=3, number=1000))
 print(struct_array_assignment, timeit.repeat(setup=setup_code, stmt=struct_array_assignment, repeat=3, number=1000))
 
 
