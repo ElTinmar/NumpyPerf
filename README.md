@@ -1,13 +1,23 @@
 # NumpyPerf
 
+Get RAM and cache specs:
+
+```
+sudo lshw -c memory
+```
+
+
+Theoretical RAM bandwidth
+
 ```
 mem_freq_hz = 2666*1e6
 num_channels = 2
-theoretical_mem_bandwidth = mem_freq_hz * 64//8 * num_channels 
+bus_width_bits = 64
+theoretical_mem_bandwidth = mem_freq_hz * bus_width_bits//8 * num_channels 
 print(f'{theoretical_mem_bandwidth * 1e-9} GiB/s')
 ```
 
-# Enable 1G hugepages
+# Enable 1G hugepages ? 
 
 Check that processor supports 1G pagefiles
 
