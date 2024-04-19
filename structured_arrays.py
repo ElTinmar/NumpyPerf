@@ -1,10 +1,25 @@
-import timeit
+# NOTE: you probably get different performance scaling once a single array is greater than L3 cache size
+# and has to go into proper RAM. Preallocating matters in RAM, less so in cache ?
+#
+# 4000x4000 float32: 61.0 MB
+# 3000x3000 float32: 34.3 MB
+# 2000x2000 float32: 15.2 MB
+# 1000x1000 float32: 3.8 MB
 
-setup_code = """
+import timeit
+import numpy as np
+REPS = 3
+N = 1000
+SZ = (4000, 4000)
+GIGABYTES = np.prod(SZ)*4/(1024**3)
+
+
+setup_code = f"""
 import numpy as np
 
-SZ = (1800, 1800)
+SZ = {SZ}
 array = np.random.uniform(0, 1, SZ).astype(np.float32)
+array2 = np.zeros_like(array)
 dt = np.dtype([
     ('index', int, (1,)),
     ('timestamp', float, (1,)), 
@@ -20,6 +35,10 @@ image = array
 
 regular_copy = """
 image = array.copy()
+"""
+
+preallocated_copy = """
+array2[:] = array
 """
 
 unstruct_array = """
@@ -52,17 +71,29 @@ struct_array_assignment = """
 zero[0] = struct
 """
 
-# number=1000 means results in ms 
-print(assignment, timeit.repeat(setup=setup_code, stmt=assignment, repeat=3, number=1000))
-print(regular_copy, timeit.repeat(setup=setup_code, stmt=regular_copy, repeat=3, number=1000))
-print(unstruct_array, timeit.repeat(setup=setup_code, stmt=unstruct_array, repeat=3, number=1000))
-print(struct_array, timeit.repeat(setup=setup_code, stmt=struct_array, repeat=3, number=1000))
-print(struct_asarray, timeit.repeat(setup=setup_code, stmt=struct_asarray, repeat=3, number=1000))
-print(struct_asanyarray, timeit.repeat(setup=setup_code, stmt=struct_asanyarray, repeat=3, number=1000))
-print(field_assignment, timeit.repeat(setup=setup_code, stmt=field_assignment, repeat=3, number=1000))
-print(tup_assignment, timeit.repeat(setup=setup_code, stmt=tup_assignment, repeat=3, number=1000))
-print(struct_array_assignment, timeit.repeat(setup=setup_code, stmt=struct_array_assignment, repeat=3, number=1000))
+# number=1000 means results in ms
+t_assignment = np.mean(timeit.repeat(setup=setup_code, stmt=assignment, repeat=REPS, number=N))
+t_regular_copy = np.mean(timeit.repeat(setup=setup_code, stmt=regular_copy, repeat=REPS, number=N))
+t_preallocated_copy = np.mean(timeit.repeat(setup=setup_code, stmt=preallocated_copy, repeat=REPS, number=N))
+t_unstruct_array = np.mean(timeit.repeat(setup=setup_code, stmt=unstruct_array, repeat=REPS, number=N))
+t_struct_array = np.mean(timeit.repeat(setup=setup_code, stmt=struct_array, repeat=REPS, number=N))
+t_struct_asarray = np.mean(timeit.repeat(setup=setup_code, stmt=struct_asarray, repeat=REPS, number=N))
+t_struct_asanyarray = np.mean(timeit.repeat(setup=setup_code, stmt=struct_asanyarray, repeat=REPS, number=N))
+t_field_assignment = np.mean(timeit.repeat(setup=setup_code, stmt=field_assignment, repeat=REPS, number=N))
+t_tup_assignment = np.mean(timeit.repeat(setup=setup_code, stmt=tup_assignment, repeat=REPS, number=N))
+t_struct_array_assignment = np.mean(timeit.repeat(setup=setup_code, stmt=struct_array_assignment, repeat=REPS, number=N))
 
+print(setup_code)
+print(assignment, t_assignment, f'{N*GIGABYTES/t_assignment} GB/s')
+print(regular_copy, t_regular_copy, f'{N*GIGABYTES/t_regular_copy} GB/s')
+print(preallocated_copy, t_preallocated_copy, f'{N*GIGABYTES/t_preallocated_copy} GB/s')
+print(unstruct_array, t_unstruct_array, f'{N*GIGABYTES/t_unstruct_array} GB/s')
+print(struct_array, t_struct_array, f'{N*GIGABYTES/t_struct_array} GB/s')
+print(struct_asarray, t_struct_asarray, f'{N*GIGABYTES/t_struct_asarray} GB/s')
+print(struct_asanyarray, t_struct_asanyarray, f'{N*GIGABYTES/t_struct_asanyarray} GB/s')
+print(field_assignment, t_field_assignment, f'{N*GIGABYTES/t_field_assignment} GB/s')
+print(tup_assignment, t_tup_assignment, f'{N*GIGABYTES/t_tup_assignment} GB/s')
+print(struct_array_assignment, t_struct_array_assignment, f'{N*GIGABYTES/t_struct_array_assignment} GB/s')
 
 exec(setup_code)
 
