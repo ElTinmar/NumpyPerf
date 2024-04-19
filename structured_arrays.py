@@ -10,7 +10,7 @@ import timeit
 import numpy as np
 REPS = 3
 N = 1000
-SZ = (4000, 4000)
+SZ = (1800, 1800)
 GIGABYTES = np.prod(SZ)*4/(1024**3)
 
 
@@ -84,16 +84,16 @@ t_tup_assignment = np.mean(timeit.repeat(setup=setup_code, stmt=tup_assignment, 
 t_struct_array_assignment = np.mean(timeit.repeat(setup=setup_code, stmt=struct_array_assignment, repeat=REPS, number=N))
 
 print(setup_code)
-print(assignment, t_assignment, f'{N*GIGABYTES/t_assignment} GB/s')
-print(regular_copy, t_regular_copy, f'{N*GIGABYTES/t_regular_copy} GB/s')
-print(preallocated_copy, t_preallocated_copy, f'{N*GIGABYTES/t_preallocated_copy} GB/s')
-print(unstruct_array, t_unstruct_array, f'{N*GIGABYTES/t_unstruct_array} GB/s')
-print(struct_array, t_struct_array, f'{N*GIGABYTES/t_struct_array} GB/s')
-print(struct_asarray, t_struct_asarray, f'{N*GIGABYTES/t_struct_asarray} GB/s')
-print(struct_asanyarray, t_struct_asanyarray, f'{N*GIGABYTES/t_struct_asanyarray} GB/s')
-print(field_assignment, t_field_assignment, f'{N*GIGABYTES/t_field_assignment} GB/s')
-print(tup_assignment, t_tup_assignment, f'{N*GIGABYTES/t_tup_assignment} GB/s')
-print(struct_array_assignment, t_struct_array_assignment, f'{N*GIGABYTES/t_struct_array_assignment} GB/s')
+print(assignment, f'{t_assignment} ms', f'{N*GIGABYTES/t_assignment} GB/s')
+print(regular_copy, f'{t_regular_copy} ms', f'{N*GIGABYTES/t_regular_copy} GB/s')
+print(preallocated_copy, f'{t_preallocated_copy} ms', f'{N*GIGABYTES/t_preallocated_copy} GB/s')
+print(unstruct_array, f'{t_unstruct_array} ms', f'{N*GIGABYTES/t_unstruct_array} GB/s')
+print(struct_array, f'{t_struct_array} ms', f'{N*GIGABYTES/t_struct_array} GB/s')
+print(struct_asarray, f'{t_struct_asarray} ms', f'{N*GIGABYTES/t_struct_asarray} GB/s')
+print(struct_asanyarray, f'{t_struct_asanyarray} ms', f'{N*GIGABYTES/t_struct_asanyarray} GB/s')
+print(field_assignment, f'{t_field_assignment} ms', f'{N*GIGABYTES/t_field_assignment} GB/s')
+print(tup_assignment, f'{t_tup_assignment} ms', f'{N*GIGABYTES/t_tup_assignment} GB/s')
+print(struct_array_assignment, f'{t_struct_array_assignment} ms', f'{N*GIGABYTES/t_struct_array_assignment} GB/s')
 
 exec(setup_code)
 
