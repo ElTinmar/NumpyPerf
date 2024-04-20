@@ -10,7 +10,7 @@ import timeit
 import numpy as np
 REPS = 3
 N = 1000
-SZ = (3000, 3000)
+SZ = (1800, 1800)
 GIGABYTES = np.prod(SZ)*4/(1024**3)
 
 
