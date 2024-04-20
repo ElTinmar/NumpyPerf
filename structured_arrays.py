@@ -30,13 +30,20 @@ struct = np.array((0, 1.00, array), dtype=dt) # array is copied
 zero = np.zeros((1,), dtype=dt)
 
 num_element = np.prod(SZ)
-data = RawArray('f', int(num_element)) 
+dt2 = np.dtype(np.float32)
+data = RawArray('B', int(num_element*dt2.itemsize)) 
 buffer = np.frombuffer(
     data, 
-    dtype = np.float32, 
+    dtype = dt2, 
     count = num_element,
     offset = 0
 ).reshape(SZ)
+
+data = RawArray('B', dt.itemsize) 
+buffer_struct = np.frombuffer(
+    data, 
+    dtype = dt, 
+)
 """
 
 assignment = """
@@ -53,6 +60,17 @@ array2[:] = array
 
 preallocated_RawArray_copy = """
 buffer[:] = array
+"""
+
+# this is curiously less efficient than preallocated_RawArray_struct_1
+preallocated_RawArray_struct_0 = """
+buffer_struct[:] = (0, 1.0, array)
+"""
+
+preallocated_RawArray_struct_1 = """
+buffer_struct['index'] = 0
+buffer_struct['timestamp'] = 1.0
+buffer_struct['image'] = array 
 """
 
 unstruct_array = """
@@ -90,6 +108,8 @@ t_assignment = np.mean(timeit.repeat(setup=setup_code, stmt=assignment, repeat=R
 t_regular_copy = np.mean(timeit.repeat(setup=setup_code, stmt=regular_copy, repeat=REPS, number=N))
 t_preallocated_copy = np.mean(timeit.repeat(setup=setup_code, stmt=preallocated_copy, repeat=REPS, number=N))
 t_preallocated_RawArray_copy = np.mean(timeit.repeat(setup=setup_code, stmt=preallocated_RawArray_copy, repeat=REPS, number=N))
+t_preallocated_RawArray_struct_0 = np.mean(timeit.repeat(setup=setup_code, stmt=preallocated_RawArray_struct_0, repeat=REPS, number=N))
+t_preallocated_RawArray_struct_1 = np.mean(timeit.repeat(setup=setup_code, stmt=preallocated_RawArray_struct_1, repeat=REPS, number=N))
 t_unstruct_array = np.mean(timeit.repeat(setup=setup_code, stmt=unstruct_array, repeat=REPS, number=N))
 t_struct_array = np.mean(timeit.repeat(setup=setup_code, stmt=struct_array, repeat=REPS, number=N))
 t_struct_asarray = np.mean(timeit.repeat(setup=setup_code, stmt=struct_asarray, repeat=REPS, number=N))
@@ -103,6 +123,8 @@ print(assignment, f'{t_assignment} ms', f'{N*GIGABYTES/t_assignment} GB/s')
 print(regular_copy, f'{t_regular_copy} ms', f'{N*GIGABYTES/t_regular_copy} GB/s')
 print(preallocated_copy, f'{t_preallocated_copy} ms', f'{N*GIGABYTES/t_preallocated_copy} GB/s')
 print(preallocated_RawArray_copy, f'{t_preallocated_RawArray_copy} ms', f'{N*GIGABYTES/t_preallocated_RawArray_copy} GB/s')
+print(preallocated_RawArray_struct_0, f'{t_preallocated_RawArray_struct_0} ms', f'{N*GIGABYTES/t_preallocated_RawArray_struct_0} GB/s')
+print(preallocated_RawArray_struct_1, f'{t_preallocated_RawArray_struct_1} ms', f'{N*GIGABYTES/t_preallocated_RawArray_struct_1} GB/s')
 print(unstruct_array, f'{t_unstruct_array} ms', f'{N*GIGABYTES/t_unstruct_array} GB/s')
 print(struct_array, f'{t_struct_array} ms', f'{N*GIGABYTES/t_struct_array} GB/s')
 print(struct_asarray, f'{t_struct_asarray} ms', f'{N*GIGABYTES/t_struct_asarray} GB/s')
