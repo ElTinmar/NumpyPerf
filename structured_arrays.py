@@ -10,12 +10,13 @@ import timeit
 import numpy as np
 REPS = 3
 N = 1000
-SZ = (1800, 1800)
+SZ = (3000, 3000)
 GIGABYTES = np.prod(SZ)*4/(1024**3)
 
 
 setup_code = f"""
 import numpy as np
+from multiprocessing import RawArray
 
 SZ = {SZ}
 array = np.random.uniform(0, 1, SZ).astype(np.float32)
@@ -27,6 +28,15 @@ dt = np.dtype([
 ])
 struct = np.array((0, 1.00, array), dtype=dt) # array is copied
 zero = np.zeros((1,), dtype=dt)
+
+num_element = np.prod(SZ)
+data = RawArray('f', int(num_element)) 
+buffer = np.frombuffer(
+    data, 
+    dtype = np.float32, 
+    count = num_element,
+    offset = 0
+).reshape(SZ)
 """
 
 assignment = """
@@ -39,6 +49,10 @@ image = array.copy()
 
 preallocated_copy = """
 array2[:] = array
+"""
+
+preallocated_RawArray_copy = """
+buffer[:] = array
 """
 
 unstruct_array = """
@@ -75,6 +89,7 @@ zero[0] = struct
 t_assignment = np.mean(timeit.repeat(setup=setup_code, stmt=assignment, repeat=REPS, number=N))
 t_regular_copy = np.mean(timeit.repeat(setup=setup_code, stmt=regular_copy, repeat=REPS, number=N))
 t_preallocated_copy = np.mean(timeit.repeat(setup=setup_code, stmt=preallocated_copy, repeat=REPS, number=N))
+t_preallocated_RawArray_copy = np.mean(timeit.repeat(setup=setup_code, stmt=preallocated_RawArray_copy, repeat=REPS, number=N))
 t_unstruct_array = np.mean(timeit.repeat(setup=setup_code, stmt=unstruct_array, repeat=REPS, number=N))
 t_struct_array = np.mean(timeit.repeat(setup=setup_code, stmt=struct_array, repeat=REPS, number=N))
 t_struct_asarray = np.mean(timeit.repeat(setup=setup_code, stmt=struct_asarray, repeat=REPS, number=N))
@@ -87,6 +102,7 @@ print(setup_code)
 print(assignment, f'{t_assignment} ms', f'{N*GIGABYTES/t_assignment} GB/s')
 print(regular_copy, f'{t_regular_copy} ms', f'{N*GIGABYTES/t_regular_copy} GB/s')
 print(preallocated_copy, f'{t_preallocated_copy} ms', f'{N*GIGABYTES/t_preallocated_copy} GB/s')
+print(preallocated_RawArray_copy, f'{t_preallocated_RawArray_copy} ms', f'{N*GIGABYTES/t_preallocated_RawArray_copy} GB/s')
 print(unstruct_array, f'{t_unstruct_array} ms', f'{N*GIGABYTES/t_unstruct_array} GB/s')
 print(struct_array, f'{t_struct_array} ms', f'{N*GIGABYTES/t_struct_array} GB/s')
 print(struct_asarray, f'{t_struct_asarray} ms', f'{N*GIGABYTES/t_struct_asarray} GB/s')
@@ -101,3 +117,4 @@ exec(setup_code)
 np.allclose(struct['image'],array) # -> returns True
 array[0:100] = 0
 np.allclose(struct['image'],array) # -> returns False
+
